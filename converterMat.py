@@ -21,7 +21,7 @@ for i in objects:
         blenderMat.use_nodes = True
         nodes = blenderMat.node_tree.nodes
         
-        _filepath = 'C:/Users/alexa/Documents/GTA San Andreas/Los Santos/GTA3img/'
+        _filepath = ''
         
         #Pegar o nome da textura principal do material
         try:
