@@ -17,3 +17,5 @@ Simplesmente o ID e o nome do dff...
 ### Converter Objetos
 
 Para converter os materiais, será necessário selecionar o diretório que contém as texturas dos objetos importados. Pois, é feito uma busca do endereço da imagem, pelo menos por enquanto.
+
+![Blender-Conv-Mat](./Imagens/readme/Blender_Conv_Mat.gif)
