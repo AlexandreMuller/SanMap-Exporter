@@ -21,10 +21,9 @@ class ObjectPanel(Panel):
 
         row = layout.row()
         row.label(text = "Encontrar ID dos objetos selecionados")
-        row = layout.row()
-        row.label(text = "Abrir arquivo IDE")
         
         row = layout.row()
+        row.label(text = "Abrir arquivo IDE")
         layout.operator("abrir_ide.open_filebrowser", icon="ZOOM_ALL")
 
 # Abrir o File Browser para abrir o arquivo
@@ -54,13 +53,13 @@ class OpenIDEFile(Operator, ImportHelper):
 
         # Adicionar cada linha do arquivo em uma lista
         for i in read_ide:
-            obj_dff.append(i.split('\n')[0])
+            obj_dff.append(i.split('\n')[0].lower())
 
         # Modificar cada objeto que foi selecionado
         for obj in objs:
             try:
                 # Procurar o nome do objeto na lista
-                matching = [s for s in obj_dff if obj.name in s]
+                matching = [s for s in obj_dff if obj.name.lower() in s]
         
                 # Adicionar a ID encontrada no objeto
                 id = matching[0].split(',', 2)[0]
@@ -70,15 +69,15 @@ class OpenIDEFile(Operator, ImportHelper):
                 obj_error.append(obj.name)
         
         # Mostrar mensagem ao concluir
-        ShowMessageBox("ID dos objetos foram adicionados!")
-        
-        #if obj_error != []:
-            #ShowMessageBox(f"Objetos com erros: {obj_error}", "Erro!", 'ERROR')
+        if len(obj_error) < len(objs):
+            ShowMessageBox(f"ID adicionadas: {len(objs) - len(obj_error)} Erros: {len(obj_error)}")
+        else:
+            ShowMessageBox(f"Nao foi possivel adicionar os ID", "Erro!", 'ERROR')
         
         print(f'\nObjetos com problemas:\n {obj_error}')
         
         return {'FINISHED'}
-        
+
 # Mostrar pequena janela de conclusao
 def ShowMessageBox(message = "", title = "Concluido!", icon = 'INFO'):
     def draw(self, context):
