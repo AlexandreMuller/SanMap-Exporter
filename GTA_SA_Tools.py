@@ -241,38 +241,47 @@ class SaveIPLFile(Operator, ImportHelper):
                 nome = ''
 
                 # Verifique o nome do objeto
-                if modelName == True:
+                if modelName:
                     nome = obj.name.split('.')[0]
                 else:
-                    nome = "dummy"
-
+                    nome = modelDummy
+                
                 # Posicoes globais do objeto
                 posX = obj.location.x
                 posY = obj.location.y
                 posZ = obj.location.z
-
+                
+                # Modo de rotacao atual do objeto
+                currentRot = obj.rotation_mode
+                
+                # Alterar modo de rotacao para quaternion
+                obj.rotation_mode = 'QUATERNION'
+                
                 # Rotacao em quaternion do objeto
                 rotW = obj.rotation_quaternion[0]
-                rotX = abs(obj.rotation_quaternion[1])
-                rotY = abs(obj.rotation_quaternion[2])
-                rotZ = abs(obj.rotation_quaternion[3])
-
-                if roundValues == True:
-                    # Arredondar posicoes
-                    posX = round(posX, roundDec)
-                    posY = round(posY, roundDec)
-                    posZ = round(posZ, roundDec)
+                rotX = obj.rotation_quaternion[1]
+                rotY = obj.rotation_quaternion[2]
+                rotZ = obj.rotation_quaternion[3]
                 
+                # Inverter rotacao em W
+                rotW = -rotW
+                
+                # Retornar para o modo de rotacao
+                obj.rotation_mode = currentRot
+                
+                if roundValues:
+                    # Arredondar posicoes
+                    posX = ("%." + str(roundDec) + "f") % posX
+                    posY = ("%." + str(roundDec) + "f") % posY
+                    posZ = ("%." + str(roundDec) + "f") % posZ
+                    
                     # Arredondar rotacoes
-                    rotX = round(rotX, roundDec)
-                    rotY = round(rotY, roundDec)
-                    rotZ = round(rotZ, roundDec)
-                    rotW = round(rotW, roundDec)
-
-                if math.degrees(obj.rotation_euler.z) >= 0:
-                    rotW = rotW * -1
-
-                iplString = "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (ID, nome, interior, posX, posY, posZ, rotX, rotY, rotZ, rotW, lod)
+                    rotW = ("%." + str(roundDec) + "f") % rotW
+                    rotX = ("%." + str(roundDec) + "f") % rotX
+                    rotY = ("%." + str(roundDec) + "f") % rotY
+                    rotZ = ("%." + str(roundDec) + "f") % rotZ
+                
+                iplString = "%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s" % (ID, nome, interior, posX, posY, posZ, rotX, rotY, rotZ, rotW, lod)
                 print(iplString)
                 print("\n")
 
@@ -349,24 +358,33 @@ class SavePWNFile(Operator, ImportHelper):
                 posX = obj.location.x
                 posY = obj.location.y
                 posZ = obj.location.z
+                
+                # Modo de rotacao atual do objeto
+                currentRot = obj.rotation_mode
+                
+                # Alterar modo de rotacao para quaternion
+                obj.rotation_mode = 'XYZ'
 
                 # Rotacao em graus do objeto
                 rotX = math.degrees(obj.rotation_euler.x)
                 rotY = math.degrees(obj.rotation_euler.y)
                 rotZ = math.degrees(obj.rotation_euler.z)
                 
+                # Retornar para o modo de rotacao
+                obj.rotation_mode = currentRot
+                
                 if roundValues == True:
                     # Arredondar posicoes
-                    posX = round(posX, roundDec)
-                    posY = round(posY, roundDec)
-                    posZ = round(posZ, roundDec)
+                    posX = ("%." + str(roundDec) + "f") % posX
+                    posY = ("%." + str(roundDec) + "f") % posY
+                    posZ = ("%." + str(roundDec) + "f") % posZ
                     
                     # Arredondar rotacoes
-                    rotX = round(rotX, roundDec)
-                    rotY = round(rotY, roundDec)
-                    rotZ = round(rotZ, roundDec)
+                    rotX = ("%." + str(roundDec) + "f") % rotX
+                    rotY = ("%." + str(roundDec) + "f") % rotY
+                    rotZ = ("%." + str(roundDec) + "f") % rotZ
 
-                iplString = "%s%s, %s, %s, %s, %s, %s, %s%s" % ("CreateObject(", ID, posX, posY, posZ, rotX, rotY, rotZ, ");")
+                iplString = "%s%s, \t%s, \t%s, \t%s, \t%s, \t%s, \t%s%s" % ("CreateObject(", ID, posX, posY, posZ, rotX, rotY, rotZ, ");")
                 print(iplString)
                 print("\n")
 
@@ -526,7 +544,8 @@ def ShowMessageBox(message = "", title = "Concluido!", icon = 'INFO'):
     bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
 
 # Lista contendo as classes
-classes = [MyProperties, COLPanel, COLConvert, IPLPanel, SaveIPLFile, PWNPanel, SavePWNFile, IDEPanel, ADD_BUTTON, REMOVE_BUTTON, SaveIDEFile]
+#classes = [MyProperties, COLPanel, COLConvert, IPLPanel, SaveIPLFile, PWNPanel, SavePWNFile, IDEPanel, ADD_BUTTON, REMOVE_BUTTON, SaveIDEFile]
+classes = [MyProperties, IPLPanel, SaveIPLFile, PWNPanel, SavePWNFile, IDEPanel, ADD_BUTTON, REMOVE_BUTTON, SaveIDEFile]
 
 # Registrar as classes
 def register():
