@@ -27,6 +27,9 @@ class MyProperties(PropertyGroup):
     roundValues: BoolProperty(name = "Arredondar valores", default = True)
     roundDec: IntProperty(name = "Casas decimais", min = 0, max = 12, default = 6)
     
+    # Alternar entre selecionados e todos da cena
+    selectObjsToggle: BoolProperty(name = "Selecionados apenas", default = False)
+    
     # Propriedades COL
     applyLightSettings: BoolProperty(default = True)
     matBrightness: IntProperty(default = 235)
@@ -40,7 +43,7 @@ class MyProperties(PropertyGroup):
 
     # Propriedades IDE
     my_list = []
-    #id: IntProperty(min=0, default=14000)
+    id: IntProperty(name = "ID", min=0, default=14000)
     distancia: IntProperty(min = 0, default = 200)
     flags: IntProperty(min = 0, default = 0)
     dffBool: BoolProperty(default = True)
@@ -55,7 +58,7 @@ class MyProperties(PropertyGroup):
 
 class COLPanel(Panel):
     bl_label = "GTA SA COL"
-    bl_idname = "COLPanel"
+    bl_idname = "COL_PT_Panel"
     bl_space_type = "VIEW_3D"
     bl_region_type = 'UI'
     bl_category = "GTA SA Tools"
@@ -83,7 +86,7 @@ cascalho = ['gravel2', 'gravel1', 'gravel', 'desertgravelgrassroad', 'dirttracks
 vidro = ['windows', 'windows2', 'wwindow', 'storewindow']
 asfalto = ['road1', 'concrete3', 'Tar_1line256HV', 'dt_road_stoplinea', 'roadnew4_512']
 
-class COLConvert(bpy.types.Operator):
+class COLConvert(Operator):
     bl_label = "Converter"
     bl_idname = "wm.template_operator"
 
@@ -175,7 +178,7 @@ class COLConvert(bpy.types.Operator):
 
 class IPLPanel(Panel):
     bl_label = "GTA SA IPL"
-    bl_idname = "TemplatePanelA"
+    bl_idname = "IPL_PT_Panel"
     bl_space_type = "VIEW_3D"
     bl_region_type = 'UI'
     bl_category = "GTA SA Tools"
@@ -199,6 +202,9 @@ class IPLPanel(Panel):
         row = layout.row()
         layout.prop(mytool, "roundValues")
         layout.prop(mytool, "roundDec")
+        
+        row = layout.row()
+        layout.prop(mytool, "selectObjsToggle")
         layout.operator("salvar_ipl.open_filebrowser", icon="CURRENT_FILE")
 
 # Abrir o File Browser para salvar o arquivo
@@ -221,17 +227,23 @@ class SaveIPLFile(Operator, ImportHelper):
         modelDummy = mytool.modelDummy
         roundValues = mytool.roundValues
         roundDec = mytool.roundDec
+        selectObjsToggle = mytool.selectObjsToggle
 
         # Caminho e extensao do arquivo
         filename, extension = os.path.splitext(self.filepath)
 
-        print('Arquivo selecionado: ', self.filepath)
         # Escrever o arquvio .IPL
         with open(self.filepath, "w") as file:
             file.write("inst\n")
 
-            # Pegar apenas os objetos que possuem a propriedade 'ID'
-            objects = [obj for obj in bpy.data.objects if "ID" in obj]
+            # Pegar apenas objetos selecionados que possuem a propriedade 'ID'
+            if selectObjsToggle:
+                objects = [obj for obj in bpy.context.view_layer.objects.selected if "ID" in obj]
+
+            # Pegar todos os objetos que possuem a propriedade 'ID'
+            else:
+                objects = [obj for obj in bpy.data.objects if "ID" in obj]
+
             for obj in objects:
 
                 # ID do objeto
@@ -302,7 +314,7 @@ class SaveIPLFile(Operator, ImportHelper):
 
 class PWNPanel(Panel):
     bl_label = "GTA SA PAWN"
-    bl_idname = "PWNPanel"
+    bl_idname = "PWN_PT_Panel"
     bl_space_type = "VIEW_3D"
     bl_region_type = 'UI'
     bl_category = "GTA SA Tools"
@@ -405,7 +417,7 @@ class SavePWNFile(Operator, ImportHelper):
 
 class IDEPanel(Panel):
     bl_label = "GTA SA IDE"
-    bl_idname = "TemplatePanelB"
+    bl_idname = "IDE_PT_Panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "GTA SA Tools"
@@ -414,9 +426,6 @@ class IDEPanel(Panel):
         layout = self.layout
         scene = context.scene
         mytool = scene.my_tool
-
-        row = layout.row()
-        layout.prop(mytool, "id", text = 'ID ')
 
         row = layout.row()
         layout.prop(mytool, "distancia", text = 'Distance')
@@ -429,9 +438,10 @@ class IDEPanel(Panel):
         myBool = layout.prop(mytool, "dffBool", text = "Igual ao DFF")
         layout.prop(mytool, "txdName", text = "")
 
-        layout.operator("add.obj")
-
         row = layout.row()
+        layout.prop(mytool, "selectObjsToggle")
+        layout.prop(mytool, "id", text = 'ID ')
+        layout.operator("add.obj")
         layout.operator("remove.obj")
 
         row = layout.row()
@@ -444,15 +454,22 @@ class ADD_BUTTON(Operator):
     def execute(self, context):
         scene = context.scene
         mytool = scene.my_tool
-        #id = mytool.id
+        id = mytool.id
         distancia = mytool.distancia
         flags = mytool.flags
         txdName = mytool.txdName
         my_list = mytool.my_list
         dffBool = mytool.dffBool
+        selectObjsToggle = mytool.selectObjsToggle
+        
+        # Pegar apenas objetos selecionados que possuem a propriedade 'ID'
+        if selectObjsToggle:
+            objects = [obj for obj in bpy.context.view_layer.objects.selected if "ID" in obj]
 
-        # Pegar apenas os objetos que possuem a propriedade 'ID'
-        objects = [obj for obj in bpy.data.objects if "ID" in obj]
+        # Pegar todos os objetos que possuem a propriedade 'ID'
+        else:
+            objects = [obj for obj in bpy.data.objects if "ID" in obj]
+                
         for obj in objects:
             name = obj.name.split('.')[0]
 
@@ -460,9 +477,9 @@ class ADD_BUTTON(Operator):
                 txdName = name
             
             # ID do objeto
-            ID = obj['ID']
+            # ID = obj['ID']
 
-            objs = "%s, %s, %s, %s, %s" % (ID, name, txdName, distancia, flags)
+            objs = "%s, %s, %s, %s, %s" % (id, name, txdName, distancia, flags)
 
             if objs != "":
                 if objs not in my_list:
@@ -480,15 +497,22 @@ class REMOVE_BUTTON(Operator):
     def execute(self, context):
         scene = context.scene
         mytool = scene.my_tool
-        #id = mytool.id
+        id = mytool.id
         distancia = mytool.distancia
         flags = mytool.flags
         txdName = mytool.txdName
         my_list = mytool.my_list
         dffBool = mytool.dffBool
+        selectObjsToggle = mytool.selectObjsToggle
+        
+        # Pegar apenas objetos selecionados que possuem a propriedade 'ID'
+        if selectObjsToggle:
+            objects = [obj for obj in bpy.context.view_layer.objects.selected if "ID" in obj]
 
-        # Pegar apenas os objetos que possuem a propriedade 'ID'
-        objects = [obj for obj in bpy.data.objects if "ID" in obj]
+        # Pegar todos os objetos que possuem a propriedade 'ID'
+        else:
+            objects = [obj for obj in bpy.data.objects if "ID" in obj]
+                
         for obj in objects:
             name = obj.name.split('.')[0]
 
@@ -496,9 +520,9 @@ class REMOVE_BUTTON(Operator):
                 txdName = name
                 
             # ID do objeto
-            ID = obj['ID']
+            # ID = obj['ID']
 
-            objs = "%s, %s, %s, %s, %s" % (ID, name, txdName, distancia, flags)
+            objs = "%s, %s, %s, %s, %s" % (id, name, txdName, distancia, flags)
 
             if objs in my_list:
                 my_list.remove(objs)
