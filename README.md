@@ -39,3 +39,13 @@ IPL data\maps\nome_do_seu_arquivo.ipl
 Feito isso, é só abrir seu jogo e verificar se tudo está como você desejava :)
 
 ![Blender-Ingame.gif](./Imagens/readme/Blender-Ingame.gif)
+
+## Geometry Nodes
+
+O [geometry nodes](https://docs.blender.org/manual/en/latest/modeling/geometry_nodes/index.html) funciona muito bem para gerar objetos. Isso facilita e muito na geração de plantas e props espalhados pelo mapa. Principalmente quando se trata de centenas ou milhares de objetos.
+
+Fiz um simples teste com três tipos de planta:
+
+https://youtu.be/UB5QgEVZQic
+
+![Blender-Geometry_Nodes](./Imagens/readme/Blender-Geometry_Nodes.png)
