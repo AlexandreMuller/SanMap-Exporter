@@ -46,6 +46,18 @@ O [geometry nodes](https://docs.blender.org/manual/en/latest/modeling/geometry_n
 
 Fiz um simples teste com três tipos de planta:
 
-https://youtu.be/UB5QgEVZQic
+https://youtu.be/meth7W5avhI
 
 ![Blender-Geometry_Nodes](./Imagens/readme/Blender-Geometry_Nodes.png)
+
+## Adicionar Pickups
+
+Para adicionar basta você selecionar sua categoria e a arma/pickup que deseja. Um cubo será instanciado 1 metro acima do "3D Cursor".
+
+![Blender-Add_Pickup](./Imagens/readme/Blender-Add_Pickup.gif)
+
+Feito isso, é só salvar em um arquivo .ipl.
+
+![GTA-Pickups](./Imagens/readme/GTA-Pickups.jpg)
+
+Funciona também para modelos e/ou armas customizadas. Basta apenas adicionar a propriedade "PICK" do tipo texto contendo seu respectivo ID em seu objeto.
