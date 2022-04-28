@@ -1,4 +1,14 @@
-# by Pommersch
+# ##### BEGIN LICENSE BLOCK #####
+#
+#  Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+#
+#  This work is licensed under the Creative Commons
+#  Attribution-NonCommercial 4.0 International License
+#
+#  To view a copy of this license,
+#  visit https://creativecommons.org/licenses/by-nc/4.0/
+#
+# ##### END LICENSE BLOCK #####
 
 import bpy
 import os
@@ -9,7 +19,7 @@ from bpy.props import StringProperty
 
 class ObjectPanel(Panel):
     bl_label = "Find Object ID"
-    bl_idname = "ObjectPanel"
+    bl_idname = "Object_PT_Panel"
     bl_space_type = "VIEW_3D"
     bl_region_type = 'UI'
     bl_category = "GTA SA Tools"
@@ -63,7 +73,7 @@ class OpenIDEFile(Operator, ImportHelper):
         
                 # Adicionar a ID encontrada no objeto
                 id = matching[0].split(',', 2)[0]
-                obj["ID"] = str(id)
+                obj["OBJ"] = str(id)
             except:
                 # Adicionar objetos que nao foram possiveis de converter numa lista
                 obj_error.append(obj.name)

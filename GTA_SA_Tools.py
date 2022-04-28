@@ -23,10 +23,6 @@ findObjectScript = bpy.data.texts["objectID.py"]
 exec(findObjectScript.as_string())
 
 class MyProperties(PropertyGroup):
-    # Arredondar valores
-    roundValues: BoolProperty(name = "Arredondar valores", default = True)
-    roundDec: IntProperty(name = "Casas decimais", min = 0, max = 12, default = 6)
-    
     # Alternar entre selecionados e todos da cena
     selectObjsToggle: BoolProperty(name = "Selecionados apenas", default = False)
     
@@ -39,7 +35,7 @@ class MyProperties(PropertyGroup):
     lod: IntProperty(name = "LOD", min = -1, max = 1, default = -1)
     interior: IntProperty(name = "Interior", min = 0, max = 1, default = 0)
     modelName: BoolProperty(name = "Usar nome do dff", default = False)
-    modelDummy: StringProperty(name = "Nome fixo", default = "dummy")
+    modelDummy: StringProperty(name = "Nome", default = "dummy")
 
     # Propriedades IDE
     my_list = []
@@ -187,21 +183,20 @@ class IPLPanel(Panel):
         layout = self.layout
         scene = context.scene
         mytool = scene.my_tool
+        modelName = mytool.modelName
 
         row = layout.row()
         row.label(text = "Converter transformações para IPL")
         row = layout.row()
-        row.label(text = "apenas objetos com a propriedade 'ID'")
+        row.label(text = "apenas objetos com a propriedade 'OBJ'")
 
         row = layout.row()
         layout.prop(mytool, "lod")
         layout.prop(mytool, "interior")
         layout.prop(mytool, "modelName")
-        layout.prop(mytool, "modelDummy")
         
-        row = layout.row()
-        layout.prop(mytool, "roundValues")
-        layout.prop(mytool, "roundDec")
+        if modelName == False:
+            layout.prop(mytool, "modelDummy")
         
         row = layout.row()
         layout.prop(mytool, "selectObjsToggle")
@@ -211,6 +206,9 @@ class IPLPanel(Panel):
 class SaveIPLFile(Operator, ImportHelper):
     bl_label = "Salvar"
     bl_idname = "salvar_ipl.open_filebrowser"
+    
+    # Arredondar valores
+    roundDec: IntProperty(name = "Casas decimais", min = 0, max = 10, default = 5)
 
     # Mostrar arquivos com determinada extensao
     filter_glob: StringProperty(
@@ -225,8 +223,7 @@ class SaveIPLFile(Operator, ImportHelper):
         interior = mytool.interior
         modelName = mytool.modelName
         modelDummy = mytool.modelDummy
-        roundValues = mytool.roundValues
-        roundDec = mytool.roundDec
+        roundDec = self.roundDec
         selectObjsToggle = mytool.selectObjsToggle
 
         # Caminho e extensao do arquivo
@@ -236,18 +233,16 @@ class SaveIPLFile(Operator, ImportHelper):
         with open(self.filepath, "w") as file:
             file.write("inst\n")
 
-            # Pegar apenas objetos selecionados que possuem a propriedade 'ID'
+            # Pegar apenas objetos selecionados que possuem a propriedade 'OBJ'
             if selectObjsToggle:
-                objects = [obj for obj in bpy.context.view_layer.objects.selected if "ID" in obj]
-
-            # Pegar todos os objetos que possuem a propriedade 'ID'
+                objects = [obj for obj in bpy.context.view_layer.objects.selected if "OBJ" in obj]
+            # Pegar todos os objetos que possuem a propriedade 'OBJ'
             else:
-                objects = [obj for obj in bpy.data.objects if "ID" in obj]
+                objects = [obj for obj in bpy.data.objects if "OBJ" in obj]
 
             for obj in objects:
-
                 # ID do objeto
-                ID = obj['ID']
+                dffID = obj['OBJ']
                 
                 # Nome do objeto
                 nome = ''
@@ -281,21 +276,18 @@ class SaveIPLFile(Operator, ImportHelper):
                 # Retornar para o modo de rotacao
                 obj.rotation_mode = currentRot
                 
-                if roundValues:
-                    # Arredondar posicoes
-                    posX = ("%." + str(roundDec) + "f") % posX
-                    posY = ("%." + str(roundDec) + "f") % posY
-                    posZ = ("%." + str(roundDec) + "f") % posZ
+                # Arredondar posicoes
+                posX = ("%." + str(roundDec) + "f") % posX
+                posY = ("%." + str(roundDec) + "f") % posY
+                posZ = ("%." + str(roundDec) + "f") % posZ
                     
-                    # Arredondar rotacoes
-                    rotW = ("%." + str(roundDec) + "f") % rotW
-                    rotX = ("%." + str(roundDec) + "f") % rotX
-                    rotY = ("%." + str(roundDec) + "f") % rotY
-                    rotZ = ("%." + str(roundDec) + "f") % rotZ
+                # Arredondar rotacoes
+                rotW = ("%." + str(roundDec) + "f") % rotW
+                rotX = ("%." + str(roundDec) + "f") % rotX
+                rotY = ("%." + str(roundDec) + "f") % rotY
+                rotZ = ("%." + str(roundDec) + "f") % rotZ
                 
-                iplString = "%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s" % (ID, nome, interior, posX, posY, posZ, rotX, rotY, rotZ, rotW, lod)
-                print(iplString)
-                print("\n")
+                iplString = "%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s,\t%s" % (dffID, nome, interior, posX, posY, posZ, rotX, rotY, rotZ, rotW, lod)
 
                 # Escrever as informacoes no arquivo selecionado
                 file.write(iplString)
@@ -323,21 +315,24 @@ class PWNPanel(Panel):
         layout = self.layout
         scene = context.scene
         mytool = scene.my_tool
+        selectObjsToggle = mytool.selectObjsToggle
 
         row = layout.row()
         row.label(text = "Converter transformações para PAWN")
         row = layout.row()
-        row.label(text = "apenas objetos com a propriedade 'ID'")
-
+        row.label(text = "apenas objetos com a propriedade 'OBJ'")
+        
         row = layout.row()
-        layout.prop(mytool, "roundValues")
-        layout.prop(mytool, "roundDec")
+        layout.prop(mytool, "selectObjsToggle")
         layout.operator("salvar_pwn.open_filebrowser", icon = "CURRENT_FILE")
 
 # Abrir o File Browser para salvar o arquivo
 class SavePWNFile(Operator, ImportHelper):
     bl_label = "Salvar"
     bl_idname = "salvar_pwn.open_filebrowser"
+    
+    # Arredondar valores
+    roundDec: IntProperty(name = "Casas decimais", min = 0, max = 10, default = 5)
 
     # Mostrar arquivos com determinada extensao
     filter_glob: StringProperty(
@@ -348,8 +343,8 @@ class SavePWNFile(Operator, ImportHelper):
     def execute(self, context):
         scene = context.scene
         mytool = scene.my_tool
-        roundValues = mytool.roundValues
-        roundDec = mytool.roundDec
+        selectObjsToggle = mytool.selectObjsToggle
+        roundDec = self.roundDec
 
         # Caminho e extensao do arquivo
         filename, extension = os.path.splitext(self.filepath)
@@ -359,12 +354,17 @@ class SavePWNFile(Operator, ImportHelper):
         with open(self.filepath, "w") as file:
             file.write("inst\n")
 
-            # Pegar apenas os objetos que possuem a propriedade 'ID'
-            objects = [obj for obj in bpy.data.objects if "ID" in obj]
+            # Pegar apenas objetos selecionados que possuem a propriedade 'OBJ'
+            if selectObjsToggle:
+                objects = [obj for obj in bpy.context.view_layer.objects.selected if "OBJ" in obj]
+            # Pegar todos os objetos que possuem a propriedade 'OBJ'
+            else:
+                objects = [obj for obj in bpy.data.objects if "OBJ" in obj]
+                
             for obj in objects:
 
                 # ID do objeto
-                ID = obj['ID']
+                dffID = obj['OBJ']
 
                 # Posicoes globais do objeto
                 posX = obj.location.x
@@ -385,20 +385,17 @@ class SavePWNFile(Operator, ImportHelper):
                 # Retornar para o modo de rotacao
                 obj.rotation_mode = currentRot
                 
-                if roundValues == True:
-                    # Arredondar posicoes
-                    posX = ("%." + str(roundDec) + "f") % posX
-                    posY = ("%." + str(roundDec) + "f") % posY
-                    posZ = ("%." + str(roundDec) + "f") % posZ
+                # Arredondar posicoes
+                posX = ("%." + str(roundDec) + "f") % posX
+                posY = ("%." + str(roundDec) + "f") % posY
+                posZ = ("%." + str(roundDec) + "f") % posZ
                     
-                    # Arredondar rotacoes
-                    rotX = ("%." + str(roundDec) + "f") % rotX
-                    rotY = ("%." + str(roundDec) + "f") % rotY
-                    rotZ = ("%." + str(roundDec) + "f") % rotZ
+                # Arredondar rotacoes
+                rotX = ("%." + str(roundDec) + "f") % rotX
+                rotY = ("%." + str(roundDec) + "f") % rotY
+                rotZ = ("%." + str(roundDec) + "f") % rotZ
 
-                iplString = "%s%s, \t%s, \t%s, \t%s, \t%s, \t%s, \t%s%s" % ("CreateObject(", ID, posX, posY, posZ, rotX, rotY, rotZ, ");")
-                print(iplString)
-                print("\n")
+                iplString = "%s%s, \t%s, \t%s, \t%s, \t%s, \t%s, \t%s%s" % ("CreateObject(", dffID, posX, posY, posZ, rotX, rotY, rotZ, ");")
 
                 # Escrever as informacoes no arquivo selecionado
                 file.write(iplString)
@@ -426,6 +423,7 @@ class IDEPanel(Panel):
         layout = self.layout
         scene = context.scene
         mytool = scene.my_tool
+        dffBool = mytool.dffBool
 
         row = layout.row()
         layout.prop(mytool, "distancia", text = 'Distance')
@@ -436,7 +434,9 @@ class IDEPanel(Panel):
         row = layout.row()
         row.label(text = "Nome do TXD:")
         myBool = layout.prop(mytool, "dffBool", text = "Igual ao DFF")
-        layout.prop(mytool, "txdName", text = "")
+        
+        if dffBool == False:
+            layout.prop(mytool, "txdName", text = "Nome")
 
         row = layout.row()
         layout.prop(mytool, "selectObjsToggle")
@@ -462,13 +462,12 @@ class ADD_BUTTON(Operator):
         dffBool = mytool.dffBool
         selectObjsToggle = mytool.selectObjsToggle
         
-        # Pegar apenas objetos selecionados que possuem a propriedade 'ID'
+        # Pegar apenas objetos selecionados que possuem a propriedade 'OBJ'
         if selectObjsToggle:
-            objects = [obj for obj in bpy.context.view_layer.objects.selected if "ID" in obj]
-
-        # Pegar todos os objetos que possuem a propriedade 'ID'
+            objects = [obj for obj in bpy.context.view_layer.objects.selected if "OBJ" in obj]
+        # Pegar todos os objetos que possuem a propriedade 'OBJ'
         else:
-            objects = [obj for obj in bpy.data.objects if "ID" in obj]
+            objects = [obj for obj in bpy.data.objects if "OBJ" in obj]
                 
         for obj in objects:
             name = obj.name.split('.')[0]
@@ -505,13 +504,12 @@ class REMOVE_BUTTON(Operator):
         dffBool = mytool.dffBool
         selectObjsToggle = mytool.selectObjsToggle
         
-        # Pegar apenas objetos selecionados que possuem a propriedade 'ID'
+        # Pegar apenas objetos selecionados que possuem a propriedade 'OBJ'
         if selectObjsToggle:
-            objects = [obj for obj in bpy.context.view_layer.objects.selected if "ID" in obj]
-
-        # Pegar todos os objetos que possuem a propriedade 'ID'
+            objects = [obj for obj in bpy.context.view_layer.objects.selected if "OBJ" in obj]
+        # Pegar todos os objetos que possuem a propriedade 'OBJ'
         else:
-            objects = [obj for obj in bpy.data.objects if "ID" in obj]
+            objects = [obj for obj in bpy.data.objects if "OBJ" in obj]
                 
         for obj in objects:
             name = obj.name.split('.')[0]
