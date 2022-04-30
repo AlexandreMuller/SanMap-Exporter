@@ -42,11 +42,6 @@ def selectEnum(self, context):
 
     return enum_items
 
-# Propriedades
-class Propriedades(PropertyGroup):
-    # Verifique objetos selecionados
-    selectObjsToggle: BoolProperty(name = "Selecionados apenas", default = False)
-
 # Painel principal
 class PICKPanel(Panel):
     bl_label = "Adicionar Pickup"
@@ -58,8 +53,6 @@ class PICKPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-        picktool = scene.picktool
-        selectObjsToggle = picktool.selectObjsToggle
         
         # Selecionar arma
         row = layout.row()
@@ -69,10 +62,6 @@ class PICKPanel(Panel):
         # Botao para adicionar
         row = layout.row()
         layout.operator("adicionar.veh")
-        
-        # Toggle para objetos selecionados
-        row = layout.row()
-        layout.prop(picktool, "selectObjsToggle")
 
         # Salvar arquivo
         layout.operator("pick_save.export", icon = "CURRENT_FILE")
@@ -81,13 +70,13 @@ class PICKPanel(Panel):
 class ADDPickup(Operator):
     bl_label = "Adicionar"
     bl_idname = "adicionar.veh"
+    bl_description = "Adicionar o pickup selecionado"
 
     def draw(self, context):
         layout = self.layout
 
     def execute(self, context):
         scene = context.scene
-        picktool = scene.picktool
         gunCategory = scene.gunCategory
         weapons = scene.weapons
         
@@ -183,10 +172,15 @@ class ADDPickup(Operator):
 class SavePICKFile(Operator, ExportHelper):
     bl_label = "Salvar"
     bl_idname = "pick_save.export"
+    bl_description = "Exportar arquivo"
+    
+    # Verifique objetos selecionados
+    selectObjsToggle: BoolProperty(name = "Selecionados apenas", default = False, description = "Serao exportados apenas os dados dos pickups selecionados")
 
     # Arredondar valores
     roundDec: IntProperty(name = "Casas decimais", min = 0, max = 10, default = 5)
     
+    # Extensao do arquivo
     filename_ext = ".ipl"
 
     # Mostrar apenas arquivos com a determinada extensao
@@ -197,8 +191,7 @@ class SavePICKFile(Operator, ExportHelper):
 
     def execute(self, context):
         scene = context.scene
-        picktool = scene.picktool
-        selectObjsToggle = picktool.selectObjsToggle
+        selectObjsToggle = self.selectObjsToggle
         roundDec = self.roundDec
     
         # Caminho e extensao do arquivo
@@ -255,19 +248,17 @@ def ShowMessageBox(message = "", title = "Concluido!", icon = 'INFO'):
         self.layout.label(text=message)
     bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
 
-classes = [Propriedades, PICKPanel, ADDPickup, SavePICKFile]
+classes = [PICKPanel, ADDPickup, SavePICKFile]
 
 # Registrar as classes
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Scene.picktool = PointerProperty(type = Propriedades)
-
     # Categoria das armas
     bpy.types.Scene.gunCategory = EnumProperty(
         name = "",
-        description = "Categoria das armas",
+        description = "Categoria selecionada",
         items = [('0', "Assault Rifles", ''),
                  ('1', "Gifts", ''),
                  ('2', "Handguns", ''),
@@ -283,7 +274,7 @@ def register():
 
     bpy.types.Scene.weapons = EnumProperty(
         name = "",
-        description = "",
+        description = "Pickup selecionado",
         items = selectEnum,
         default = None
     )
@@ -292,7 +283,6 @@ def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-    del bpy.types.Scene.picktool
     del bpy.types.Scene.weapons
     del bpy.types.Scene.gunCategory
 
