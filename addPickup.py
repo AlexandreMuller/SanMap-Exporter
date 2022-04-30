@@ -53,7 +53,7 @@ class PICKPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-        
+
         # Selecionar arma
         row = layout.row()
         layout.prop(scene, "gunCategory")
@@ -61,19 +61,16 @@ class PICKPanel(Panel):
 
         # Botao para adicionar
         row = layout.row()
-        layout.operator("adicionar.veh")
+        layout.operator("adicionar.veh", icon = "ADD")
 
         # Salvar arquivo
         layout.operator("pick_save.export", icon = "CURRENT_FILE")
 
 # Operador para adicionar pickup
 class ADDPickup(Operator):
-    bl_label = "Adicionar"
+    bl_label = "Add"
     bl_idname = "adicionar.veh"
     bl_description = "Adicionar o pickup selecionado"
-
-    def draw(self, context):
-        layout = self.layout
 
     def execute(self, context):
         scene = context.scene
@@ -170,15 +167,25 @@ class ADDPickup(Operator):
 
 # Salvar arquivo
 class SavePICKFile(Operator, ExportHelper):
-    bl_label = "Salvar"
+    bl_label = "Save"
     bl_idname = "pick_save.export"
     bl_description = "Exportar arquivo"
     
     # Verifique objetos selecionados
-    selectObjsToggle: BoolProperty(name = "Selecionados apenas", default = False, description = "Serao exportados apenas os dados dos pickups selecionados")
+    selectObjsToggle: BoolProperty(
+        name = "",
+        description = "Serao exportados apenas os dados dos pickups selecionados",
+        default = False
+    )
 
     # Arredondar valores
-    roundDec: IntProperty(name = "Casas decimais", min = 0, max = 10, default = 5)
+    roundDec: IntProperty(
+        name = "",
+        description = "Numero de casas decimais para arredondar os valores",
+        min = 0,
+        max = 10,
+        default = 5
+    )
     
     # Extensao do arquivo
     filename_ext = ".ipl"
@@ -188,6 +195,20 @@ class SavePICKFile(Operator, ExportHelper):
         default = "*.ipl;*.txt",
         options = {"HIDDEN"}
     )
+    
+    def draw(self, context):
+        layout = self.layout
+        
+        # Criar grid
+        grid = layout.grid_flow(columns=2, align=True)
+        
+        # Toggle dos objetos selecionados
+        grid.prop(self, "selectObjsToggle")
+        grid.label(text = "Selected Objects")
+        
+        # Numero de casas decimais
+        layout.label(text = "Casas decimais:")
+        layout.prop(self, "roundDec")
 
     def execute(self, context):
         scene = context.scene
