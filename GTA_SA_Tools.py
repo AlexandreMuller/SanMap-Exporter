@@ -6,7 +6,7 @@ import bpy
 import os
 import math
 
-from bpy_extras.io_utils import ImportHelper
+from bpy_extras.io_utils import ExportHelper
 from bpy.types import Panel, Operator, PropertyGroup
 from bpy.props import StringProperty, PointerProperty, IntProperty, BoolProperty, EnumProperty
 from math import pi
@@ -203,12 +203,15 @@ class IPLPanel(Panel):
         layout.operator("salvar_ipl.open_filebrowser", icon="CURRENT_FILE")
 
 # Abrir o File Browser para salvar o arquivo
-class SaveIPLFile(Operator, ImportHelper):
+class SaveIPLFile(Operator, ExportHelper):
     bl_label = "Salvar"
     bl_idname = "salvar_ipl.open_filebrowser"
     
     # Arredondar valores
     roundDec: IntProperty(name = "Casas decimais", min = 0, max = 10, default = 5)
+    
+    # Extensao do arquivo
+    filename_ext = ".ipl"
 
     # Mostrar arquivos com determinada extensao
     filter_glob: StringProperty(
@@ -327,12 +330,15 @@ class PWNPanel(Panel):
         layout.operator("salvar_pwn.open_filebrowser", icon = "CURRENT_FILE")
 
 # Abrir o File Browser para salvar o arquivo
-class SavePWNFile(Operator, ImportHelper):
+class SavePWNFile(Operator, ExportHelper):
     bl_label = "Salvar"
     bl_idname = "salvar_pwn.open_filebrowser"
     
     # Arredondar valores
     roundDec: IntProperty(name = "Casas decimais", min = 0, max = 10, default = 5)
+    
+    # Extensao do arquivo
+    filename_ext = ".pwn"
 
     # Mostrar arquivos com determinada extensao
     filter_glob: StringProperty(
@@ -528,9 +534,12 @@ class REMOVE_BUTTON(Operator):
 
         return {'FINISHED'}
 
-class SaveIDEFile(Operator, ImportHelper):
+class SaveIDEFile(Operator, ExportHelper):
     bl_label = "Save"
     bl_idname = "ide_save.export"
+    
+    # Extensao do arquivo
+    filename_ext = ".ide"
 
     # Mostrar apenas arquivos com a determinada extensao
     filter_glob: StringProperty(
