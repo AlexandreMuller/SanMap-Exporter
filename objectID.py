@@ -17,87 +17,89 @@ from bpy_extras.io_utils import ImportHelper
 from bpy.types import Panel, Operator
 from bpy.props import StringProperty
 
-class ObjectPanel(Panel):
+# Painel principal
+class FIND_PT_IDPainelPrincipal(Panel):
     bl_label = "Find Object ID"
-    bl_idname = "Object_PT_Panel"
+    bl_idname = "FIND_PT_IDPainelPrincipal"
     bl_space_type = "VIEW_3D"
     bl_region_type = 'UI'
     bl_category = "GTA SA Tools"
+    bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
-        mytool = scene.my_tool
 
         row = layout.row()
-        row.label(text = "Encontrar ID dos objetos selecionados")
-        
-        row = layout.row()
-        row.label(text = "Abrir arquivo IDE")
-        layout.operator("abrir_ide.open_filebrowser", icon="ZOOM_ALL")
+        row.label(text = "Abrir arquivo de busca")
+        layout.operator("abrir_idfile.open_filebrowser", icon="ZOOM_ALL")
 
 # Abrir o File Browser para abrir o arquivo
-class OpenIDEFile(Operator, ImportHelper):
+class OPEN_OP_IDFile(Operator, ImportHelper):
     bl_label = "Buscar"
-    bl_idname = "abrir_ide.open_filebrowser"
+    bl_idname = "abrir_idfile.open_filebrowser"
 
     # Mostrar arquivos com determinada extensao
     filter_glob: StringProperty(
-        default = '*.ide;*.txt',
+        default = '*.txt;*.ide',
         options = {'HIDDEN'}
     )
 
     def execute(self, context):
+        items = []
+        erros = []
+        
         # Caminho e extensao do arquivo
         filename, extension = os.path.splitext(self.filepath)
-
+        
+        try:
+            # Ler o arquivo
+            objetos_desejados = open(self.filepath, "r")
+            for i in objetos_desejados:
+                x = i.split(',')
+                try:
+                    items.append({'ID': x[0].split()[0], 'Nome': x[1].split()[0]})
+                except:
+                    pass
+        except:
+            self.report({'ERROR'}, 'A formateção do arquivo está incorreta ou possui problemas')
+            
+            return {'CANCELLED'}
+        
         # Pegar os objetos selecionados
-        objs = bpy.context.view_layer.objects.selected
+        objects = bpy.context.selected_objects
         
-        # Ler o arquivo
-        objetos_desejados = open(self.filepath, "r")
-        read_ide = objetos_desejados.readlines()
-
-        obj_dff = []
-        obj_error = []
-
-        # Adicionar cada linha do arquivo em uma lista
-        for i in read_ide:
-            obj_dff.append(i.split('\n')[0].lower())
-
-        # Modificar cada objeto que foi selecionado
-        for obj in objs:
-            try:
-                # Procurar o nome do objeto na lista
-                matching = [s for s in obj_dff if obj.name.lower() in s]
+        if len(objects) != 0:
+            # Procurar o nome do objeto na lista
+            for obj in objects:
+                notFound = True
+                objName = obj.name.split('.')[0].lower()
+                for i in items:
+                    itemName = i['Nome']
+                    if itemName.lower() == objName:
+                        obj["INST"] = str(i['ID'])
+                        notFound = False
+                        break
+                if notFound:
+                    erros.append(obj.name)
         
-                # Adicionar a ID encontrada no objeto
-                id = matching[0].split(',', 2)[0]
-                obj["OBJ"] = str(id)
-            except:
-                # Adicionar objetos que nao foram possiveis de converter numa lista
-                obj_error.append(obj.name)
-        
-        # Mostrar mensagem ao concluir
-        if len(obj_error) < len(objs):
-            ShowMessageBox(f"ID adicionadas: {len(objs) - len(obj_error)} Erros: {len(obj_error)}")
+            # Mostrar mensagem ao concluir
+            if len(erros) < len(objects):
+                self.report({'INFO'}, f"ID adicionadas: {len(objects) - len(erros)} Não encontrados: {len(erros)}")
+            else:
+                self.report({'WARNING'}, 'Nenhum objeto foi encontrado!')
+            
         else:
-            ShowMessageBox(f"Nao foi possivel adicionar os ID", "Erro!", 'ERROR')
-        
-        print(f'\nObjetos com problemas:\n {obj_error}')
+            self.report({'WARNING'}, 'Selecione ao menos um objeto!')
         
         return {'FINISHED'}
 
-# Mostrar pequena janela de conclusao
-def ShowMessageBox(message = "", title = "Concluido!", icon = 'INFO'):
-    def draw(self, context):
-        self.layout.label(text=message)
-    bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+# Lista das classes
+classes = (
+    FIND_PT_IDPainelPrincipal,
+    OPEN_OP_IDFile
+)
 
-# Lista contendo as classes
-classes = [ObjectPanel, OpenIDEFile]
-
-# Registrar as classes
+#Registrar as classes
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
