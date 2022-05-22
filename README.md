@@ -17,3 +17,5 @@ Por enquanto, os scripts estão separados! Portanto, siga as instruções abaixo
 5. Execute cada script clicando no botão *play* ou apenas aperte Alt + P
 6. Retorne para sua *viewport* e ative a aba lateral direita
 7. Feito tudo isso, uma aba chamada "GTA SA Tools" será ativada
+
+![Sript_install](.\Imagens\readme\Sript_install.gif)
