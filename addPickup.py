@@ -19,18 +19,18 @@ from bpy.types import Panel, Operator, PropertyGroup
 from bpy.props import StringProperty, PointerProperty, IntProperty, BoolProperty, EnumProperty
 
 # Items
-assaultRifles = ('26, AK-47', "AK-47", ''),('27, M4', "M4", '')
-gifts = ('33, Large_Purple_Dildo', "Large Purple Dildo", ''),('34, Small_White_Dildo', "Small White Dildo", ''),('35, Large_White_Vibrator', "Large White Vibrator", ''),('36, Small_Black_Vibrator', "Small Black Vibrator", ''),('37, Flowers', "Flowers", ''),('38, Cane', "Cane", '')
-handguns = ('18, Colt_45', "Colt 45", ''),('19, Colt_45_Silenced', "Colt 45 Silenced", ''),('20, Deagle', "Deagle", '')
-heavyWeapons = ('31, Flamethrower', "Flamethrower", ''),('32, Minigun', "Minigun", ''),('46, Rocket_Launcher', "Rocket Launcher", ''),('47, Rocket_Launcher_HS', "Rocket Launcher HS", '')
-melee = ('10, Bat', "Bat", ''),('4, Brassknuckle', "Brassknuckle", ''),('14, Chainsaw', "Chainsaw", ''),('9, Golfclub', "Golfclub", ''),('13, Katana', "Katana", ''),('6, Knife', "Knife", ''),('5, Nightstick', "Nightstick", ''),('12, Poolstick', "Poolstick", ''),('11, Shovel', "Shovel", '')
-projectiles = ('16, Grenade', "Grenade", ''),('15, Molotov', "Molotov", ''),('17, Satchel', "Satchel", ''),('43, Teargas', "Teargas", '')
-rifles = ('28, Country_Rifle', "Country Rifle", ''),('29, Sniper_Rifle', "Sniper Rifle", '')
-special = ('51, Camera', "Camera", ''),('41, Cellphone', "Cellphone", ''),('48, Detonator', "Detonator", ''),('50, Fire_Extinguisher', "Fire Extinguisher", ''),('53, Infrared', "Infrared Goggles", ''),('52, Nightvision', "Nightvision Goggles", ''),('54, Jetpack', "Jetpack", ''),('55, Parachute', "Parachute", ''),('49, Spraycan', "Spraycan", '')
-subMachine = ('25, MP5', "MP5", ''),('23, Tec-9', "Tec-9", ''),('24, Uzi', "Uzi", '')
-shotguns = ('22, Combat_Shotgun', "Combat Shotgun", ''),('21, Shotgun', "Shotgun", '')
+assaultRifles = ('26, 355, AK-47', "AK-47", ''),('27, 356, M4', "M4", '')
+gifts = ('33, 321, Large_Purple_Dildo', "Large Purple Dildo", ''),('34, 322, Small_White_Dildo', "Small White Dildo", ''),('35, 323, Large_White_Vibrator', "Large White Vibrator", ''),('36, 324, Small_Black_Vibrator', "Small Black Vibrator", ''),('37, 325, Flowers', "Flowers", ''),('38, 326, Cane', "Cane", '')
+handguns = ('18, 346, Colt_45', "Colt 45", ''),('19, 347, Colt_45_Silenced', "Colt 45 Silenced", ''),('20, 348, Deagle', "Deagle", '')
+heavyWeapons = ('31, 361, Flamethrower', "Flamethrower", ''),('32, 362, Minigun', "Minigun", ''),('46, 359, Rocket_Launcher', "Rocket Launcher", ''),('47, 360, Rocket_Launcher_HS', "Rocket Launcher HS", '')
+melee = ('10, 336, Bat', "Bat", ''),('4, 331, Brassknuckle', "Brassknuckle", ''),('14, 341, Chainsaw', "Chainsaw", ''),('9, 333, Golfclub', "Golfclub", ''),('13, 339, Katana', "Katana", ''),('6, 335, Knife', "Knife", ''),('5, 334, Nightstick', "Nightstick", ''),('12, 338, Poolstick', "Poolstick", ''),('11, 337, Shovel', "Shovel", '')
+projectiles = ('16, 342, Grenade', "Grenade", ''),('15, 344, Molotov', "Molotov", ''),('17, 363, Satchel', "Satchel", ''),('43, 343, Teargas', "Teargas", '')
+rifles = ('28, 357, Country_Rifle', "Country Rifle", ''),('29, 358, Sniper_Rifle', "Sniper Rifle", '')
+special = ('51, 367, Camera', "Camera", ''),('41, -1, Cellphone', "Cellphone", ''),('48, 364, Detonator', "Detonator", ''),('50, 366, Fire_Extinguisher', "Fire Extinguisher", ''),('53, 369, Infrared', "Infrared Goggles", ''),('52, 368, Nightvision', "Nightvision Goggles", ''),('54, 370, Jetpack', "Jetpack", ''),('55, 371, Parachute', "Parachute", ''),('49, 365, Spraycan', "Spraycan", '')
+subMachine = ('25, 353, MP5', "MP5", ''),('23, 372, Tec-9', "Tec-9", ''),('24, 352, Uzi', "Uzi", '')
+shotguns = ('22, 351, Combat_Shotgun', "Combat Shotgun", ''),('21, 349, Shotgun', "Shotgun", '')
 
-beta = assaultRifles, gifts, handguns, heavyWeapons, melee, projectiles, rifles, shotguns, special, subMachine
+weaponCategoryList = assaultRifles, gifts, handguns, heavyWeapons, melee, projectiles, rifles, shotguns, special, subMachine
 
 # Atualizar e selecionar o dropdown correspondente
 def selectEnum(self, context):
@@ -38,12 +38,12 @@ def selectEnum(self, context):
     index = int(context.scene.gunCategory)
     
     # Selecionar o dropdown de acordo com a categoria da arma
-    enum_items = beta[index]
+    enum_items = weaponCategoryList[index]
 
     return enum_items
 
 # Painel principal
-class PICKPanel(Panel):
+class PICK_PT_PainelPrincipal(Panel):
     bl_label = "Adicionar Pickup"
     bl_idname = "PICK_PT_Panel"
     bl_space_type = "VIEW_3D"
@@ -67,7 +67,7 @@ class PICKPanel(Panel):
         layout.operator("pick_save.export", icon = "CURRENT_FILE")
 
 # Operador para adicionar pickup
-class ADDPickup(Operator):
+class ADD_OP_Pickup(Operator):
     bl_label = "Add"
     bl_idname = "adicionar.veh"
     bl_description = "Adicionar o pickup selecionado"
@@ -85,8 +85,12 @@ class ADDPickup(Operator):
         pickID = weapons.split()[0]
         pickID = pickID.replace(',', '')
         
+        # ID do modelo
+        modelID = weapons.split()[1]
+        modelID = modelID.replace(',', '')
+        
         # Nome do pickup
-        pickName = weapons.split()[1]
+        pickName = weapons.split()[2]
         
         # Nome do material e cor do pickup
         materialName = materiais[int(gunCategory)]
@@ -135,20 +139,20 @@ class ADDPickup(Operator):
             # Apagar todos os nodes
             nodes.clear()
             
-            #Criar o sombreador emissivo
+            # Criar o sombreador emissivo
             node_emissive = nodes.new(type="ShaderNodeEmission")
             node_emissive.inputs[1].default_value = 5
             node_emissive.inputs[0].default_value = pickupColor
             node_emissive.location = -200, 0
 
-            #Criar saida do material
+            # Criar saida do material
             node_output  = nodes.new(type='ShaderNodeOutputMaterial')
             node_output.location = 0, 0
 
-            #Linkar nodes
+            # Linkar nodes
             links = pickupMaterial.node_tree.links
 
-            #Linkar a saida do sombreador emissivo com a saida do material
+            # Linkar a saida do sombreador emissivo com a saida do material
             links.new(node_emissive.outputs['Emission'], node_output.inputs['Surface'])
 
             # Adicionar material no pickup
@@ -159,6 +163,10 @@ class ADDPickup(Operator):
 
         # ID do pickup
         pickup["PICK"] = pickID
+        
+        # ID do modelo
+        if modelID != '-1':
+            pickup["MODEL"] = modelID
 
         # Mostrar mensagem ao adicionar
         self.report({'INFO'}, f"Adicionado!  Nome: {pickName}   ID: {pickID}")
@@ -166,61 +174,71 @@ class ADDPickup(Operator):
         return {'FINISHED'}
 
 # Salvar arquivo
-class SavePICKFile(Operator, ExportHelper):
+class SAVE_OP_PickFile(Operator, ExportHelper):
     bl_label = "Save"
     bl_idname = "pick_save.export"
     bl_description = "Exportar arquivo"
     
-    # Verifique objetos selecionados
+    # Organizar o arquivo
+    orgArquivo: BoolProperty(
+        name = "",
+        default = True
+    )
+    
+    # Toggle dos objetos selecionados
     selectObjsToggle: BoolProperty(
         name = "",
-        description = "Serao exportados apenas os dados dos pickups selecionados",
+        description = "Serão exportados apenas os objetos selecionados",
         default = False
     )
 
     # Arredondar valores
     roundDec: IntProperty(
         name = "",
-        description = "Numero de casas decimais para arredondar os valores",
+        description = "Número de casas decimais para os valores de localização do objeto",
         min = 0,
         max = 10,
         default = 5
     )
     
-    # Extensao do arquivo
-    filename_ext = ".ipl"
-
     # Mostrar apenas arquivos com a determinada extensao
     filter_glob: StringProperty(
         default = "*.ipl;*.txt",
         options = {"HIDDEN"}
     )
     
+    # Extensao do arquivo
+    filename_ext = ".ipl"
+    
     def draw(self, context):
         layout = self.layout
         
-        # Criar grid
+        # Toggle para organizar o arquivo
         grid = layout.grid_flow(columns=2, align=True)
+        grid.prop(self, "orgArquivo")
+        grid.label(text = "Arquivo organizado")
         
         # Toggle dos objetos selecionados
+        grid = layout.grid_flow(columns=2, align=True)
         grid.prop(self, "selectObjsToggle")
         grid.label(text = "Selected Objects")
         
         # Numero de casas decimais
-        layout.label(text = "Casas decimais:")
-        layout.prop(self, "roundDec")
+        grid = layout.grid_flow(columns=2, align=True)
+        grid.label(text = "Casas decimais:")
+        grid.prop(self, "roundDec")
 
     def execute(self, context):
         scene = context.scene
-        selectObjsToggle = self.selectObjsToggle
         roundDec = self.roundDec
+        orgArquivo = self.orgArquivo
     
         # Caminho e extensao do arquivo
         filename, extension = os.path.splitext(self.filepath)
 
         # Pegar apenas objetos selecionados que possuem a propriedade 'PICK'
-        if selectObjsToggle:
-            pickups = [obj for obj in bpy.context.view_layer.objects.selected if "PICK" in obj]
+        if self.selectObjsToggle:
+            pickups = [obj for obj in bpy.context.selected_objects if "PICK" in obj]
 
             if len(pickups) == 0:
                 self.report({'ERROR'}, "Nenhum pickup selecionado!")
@@ -232,13 +250,18 @@ class SavePICKFile(Operator, ExportHelper):
             if len(pickups) == 0:
                 self.report({'ERROR'}, "Nenhum pickup em sua cena!")
 
-        if len(pickups) >= 1:
+        if len(pickups) > 0:
             with open(self.filepath, "w") as file:
                 file.write("pick\n")
 
+                # Estrutura contendo informacoes dos pickups
+                estrutura = {'ID': [], 'PosX': [], 'PosY': [], 'PosZ': []}
+
+                # Adicionar as propriedades do objeto na estrutura
                 for obj in pickups:
                     # ID do objeto
                     pickID = obj['PICK']
+                    estrutura['ID'].append(pickID)
 
                     # Posicoes globais do objeto
                     posX = obj.location.x
@@ -246,30 +269,71 @@ class SavePICKFile(Operator, ExportHelper):
                     posZ = obj.location.z
 
                     # Arredondar posicoes
-                    posX = ("%." + str(roundDec) + "f") % posX
-                    posY = ("%." + str(roundDec) + "f") % posY
-                    posZ = ("%." + str(roundDec) + "f") % posZ
+                    estrutura['PosX'].append(("%." + str(roundDec) + "f") % posX)
+                    estrutura['PosY'].append(("%." + str(roundDec) + "f") % posY)
+                    estrutura['PosZ'].append(("%." + str(roundDec) + "f") % posZ)
 
-                    # Informacoes do pickup
-                    pickString = "%s,\t%s,\t%s,\t%s" % (pickID, posX, posY, posZ)
+                # Colunas da estrutura
+                columns = ('ID', 'PosX', 'PosY', 'PosZ')
 
-                    # Escrever as informacoes no arquivo selecionado
-                    file.write(pickString)
-                    file.write("\n")
-                file.write("end\n")
+                # Lista contendo o tamanho dos itens
+                itemLengthList = []
 
-                # Mostrar mensagem ao concluir
-                ShowMessageBox("Arquivo salvo com sucesso!", "Concluido!", 'DISK_DRIVE')
+                # Pegar o tamanho de cada item para organizar o arquivo
+                def organizeFile(self, context):
+                    for column in range(len(estrutura)):
+                        maxValue = None
+                        items = estrutura[columns[column]]
+                        for i in items:
+                            item = len(str(i))
+                            if (maxValue is None or item > maxValue):
+                                maxValue = item
+                        itemLengthList.append(maxValue)
+
+                if orgArquivo:
+                    organizeFile(self, context)
+
+                # Escrever arquivo
+                def escreverArquivo(self, context):
+                    for i in range(len(pickups)):
+                        item = ''
+                        for column in range(len(columns)):
+                            y = estrutura[columns[column]]
+
+                            if orgArquivo:
+                                x = itemLengthList[column]
+
+                                if column == 0:
+                                    f = "{0:<" + str(x) + "}"
+                                else:
+                                    f = "{0:>" + str(x) + "}"
+
+                                item += f.format(y[i]) + ', '
+
+                                if column == len(columns) - 1:
+                                    item = item[:-2]
+                            else:
+                                item += str(y[i]) + ','
+                                if column == len(columns) - 1:
+                                    item = item[:-1]
+                        file.write(item)
+                        file.write("\n")
+                    file.write("end\n")
+
+                try:
+                    escreverArquivo(self, context)
+                    self.report({'INFO'}, 'Arquivo salvo com sucesso!')
+                except Exception as e:
+                    self.report({'ERROR'}, f'{e}')
 
         return {'FINISHED'}
 
-# Mostrar pequena janela de conclusao
-def ShowMessageBox(message = "", title = "Concluido!", icon = 'INFO'):
-    def draw(self, context):
-        self.layout.label(text=message)
-    bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
-
-classes = [PICKPanel, ADDPickup, SavePICKFile]
+# Lista das classes
+classes = (
+    PICK_PT_PainelPrincipal,
+    ADD_OP_Pickup,
+    SAVE_OP_PickFile
+)
 
 # Registrar as classes
 def register():
